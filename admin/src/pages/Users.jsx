@@ -59,7 +59,7 @@ const Users = () => {
   return (
     <div style={{ fontFamily: "'Satoshi', sans-serif" }}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
               <div style={{ width: 8, height: 32, background: '#b7c6c2', border: '2px solid #000', borderRadius: 2 }} />
@@ -102,7 +102,7 @@ const Users = () => {
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         style={{ background: '#fff', border: '2px solid #000', borderRadius: '0.75rem', boxShadow: '4px 4px 0px #000', overflow: 'hidden' }}
       >
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrap">
           <table className="data-table">
             <thead>
               <tr>

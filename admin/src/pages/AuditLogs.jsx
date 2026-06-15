@@ -98,7 +98,7 @@ const AuditLogs = () => {
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         style={{ background: '#fff', border: '2px solid #000', borderRadius: '0.75rem', boxShadow: '4px 4px 0px #000', overflow: 'hidden' }}
       >
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrap">
           <table className="data-table">
             <thead>
               <tr>

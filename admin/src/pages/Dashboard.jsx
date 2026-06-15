@@ -162,12 +162,12 @@ const Dashboard = () => {
       </motion.div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.75rem' }}>
+      <div className="stat-grid" style={{ marginBottom: '1.75rem' }}>
         {statCards.map((s) => <StatCard key={s.title} {...s} />)}
       </div>
 
       {/* Charts Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="chart-grid" style={{ marginBottom: '1.5rem' }}>
         {/* Registration Trend */}
         <motion.div
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}

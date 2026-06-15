@@ -40,13 +40,13 @@ const Login = () => {
       background: '#171e19',
       backgroundImage: 'radial-gradient(circle, rgba(183,198,194,0.08) 1px, transparent 1px)',
       backgroundSize: '32px 32px',
-    }}>
+    }} className="login-split">
       {/* Left panel */}
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
         padding: '4rem', background: '#111611', borderRight: '2px solid #000',
         position: 'relative', overflow: 'hidden',
-      }}>
+      }} className="login-left">
         {/* Big decorative text */}
         <div style={{
           position: 'absolute', bottom: -20, right: -20,
@@ -88,7 +88,7 @@ const Login = () => {
       </div>
 
       {/* Right — Login form */}
-      <div style={{ width: 480, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+      <div style={{ width: 480, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} className="login-right">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
