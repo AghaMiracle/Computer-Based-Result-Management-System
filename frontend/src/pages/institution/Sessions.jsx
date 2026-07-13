@@ -45,6 +45,24 @@ const Sessions = () => {
     } catch (error) { toast.error(error.response?.data?.message || 'Operation failed'); }
   };
 
+  const handleDeleteSession = async (id, name) => {
+    if (!window.confirm(`Delete session "${name}"? This will also remove all its semesters. This cannot be undone.`)) return;
+    try {
+      await axios.delete(`/api/institution/sessions/${id}`);
+      toast.success('Session deleted');
+      fetchSessions();
+    } catch (error) { toast.error(error.response?.data?.message || 'Failed to delete session'); }
+  };
+
+  const handleDeleteSemester = async (semId, semName) => {
+    if (!window.confirm(`Delete semester "${semName}"? This cannot be undone.`)) return;
+    try {
+      await axios.delete(`/api/institution/semesters/${semId}`);
+      toast.success('Semester deleted');
+      fetchSessions();
+    } catch (error) { toast.error(error.response?.data?.message || 'Failed to delete semester'); }
+  };
+
   const handleAddSemester = async (e) => {
     e.preventDefault();
     try {
@@ -56,6 +74,11 @@ const Sessions = () => {
 
   const setActive = async (sessionId) => {
     try { await axios.put(`/api/institution/sessions/${sessionId}/activate`); toast.success('Session activated'); fetchSessions(); }
+    catch (error) { toast.error(error.response?.data?.message || 'Failed'); }
+  };
+
+  const activateSemester = async (semId) => {
+    try { await axios.put(`/api/institution/semesters/${semId}/activate`); toast.success('Semester activated'); fetchSessions(); }
     catch (error) { toast.error(error.response?.data?.message || 'Failed'); }
   };
 
@@ -78,7 +101,7 @@ const Sessions = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {sessions.map((session, i) => (
           <motion.div key={session._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-sm)', background: session.isActive ? 'var(--yellow)' : '#fff', border: '2px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '2px 2px 0px #000', flexShrink: 0 }}>
                   <HiOutlineCalendarDays size={20} style={{ color: '#000' }} />
@@ -91,7 +114,7 @@ const Sessions = () => {
                 </div>
                 {session.isActive && <span className="badge badge-success" style={{ marginLeft: '0.5rem' }}>Current</span>}
               </div>
-              <div style={{ display: 'flex', gap: '0.375rem' }}>
+              <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
                 {!session.isActive && (
                   <button onClick={() => setActive(session._id)} className="btn btn-sm btn-secondary" style={{ fontSize: '0.75rem' }}>
                     <HiOutlineCheckCircle size={14} /> Set Active
@@ -100,8 +123,11 @@ const Sessions = () => {
                 <button onClick={() => { setSelectedSession(session._id); setShowSemesterModal(true); }} className="btn btn-sm btn-outline" style={{ fontSize: '0.75rem' }}>
                   <HiOutlinePlusCircle size={14} /> Semester
                 </button>
-                <button onClick={() => { setForm({ name: session.name, startDate: session.startDate?.split('T')[0], endDate: session.endDate?.split('T')[0] }); setEditingId(session._id); setShowModal(true); }} className="btn btn-sm btn-outline" style={{ padding: '0.25rem 0.5rem' }}>
+                <button onClick={() => { setForm({ name: session.name, startDate: session.startDate?.split('T')[0], endDate: session.endDate?.split('T')[0] }); setEditingId(session._id); setShowModal(true); }} className="btn btn-sm btn-outline" style={{ padding: '0.25rem 0.5rem' }} title="Edit">
                   <HiOutlinePencilSquare size={14} />
+                </button>
+                <button onClick={() => handleDeleteSession(session._id, session.name)} className="btn btn-sm btn-outline" style={{ padding: '0.25rem 0.5rem', color: '#dc2626', borderColor: '#dc2626' }} title="Delete">
+                  <HiOutlineTrash size={14} />
                 </button>
               </div>
             </div>
@@ -112,7 +138,17 @@ const Sessions = () => {
                   <div key={sem._id} style={{ padding: '0.875rem', borderRadius: 'var(--radius-sm)', background: 'var(--bg-primary)', border: `1px solid ${sem.isActive ? 'var(--secondary)' : 'var(--border-light)'}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>{sem.name}</span>
-                      {sem.isActive && <span className="badge badge-success" style={{ fontSize: '0.625rem', padding: '0.125rem 0.5rem' }}>Active</span>}
+                      <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                        {sem.isActive && <span className="badge badge-success" style={{ fontSize: '0.625rem', padding: '0.125rem 0.5rem' }}>Active</span>}
+                        {!sem.isActive && (
+                          <button onClick={() => activateSemester(sem._id)} title="Activate" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#16a34a', display: 'flex', padding: 2 }}>
+                            <HiOutlineCheckCircle size={16} />
+                          </button>
+                        )}
+                        <button onClick={() => handleDeleteSemester(sem._id, sem.name)} title="Delete semester" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex', padding: 2 }}>
+                          <HiOutlineTrash size={14} />
+                        </button>
+                      </div>
                     </div>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                       {new Date(sem.startDate).toLocaleDateString()} — {new Date(sem.endDate).toLocaleDateString()}

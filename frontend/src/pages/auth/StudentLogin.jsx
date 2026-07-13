@@ -180,9 +180,15 @@ const StudentLogin = () => {
           {/* Links */}
           <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
             <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: '0.875rem', fontWeight: 500, color: '#555' }}>
-              Institution or Teacher?{' '}
+              Institution Admin?{' '}
               <Link to="/login" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, color: '#000', textDecoration: 'none', borderBottom: '2px solid #000' }}>
                 Login here
+              </Link>
+            </p>
+            <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: '0.8125rem', fontWeight: 500, color: '#555', marginTop: '0.75rem' }}>
+              Are you a teacher?{' '}
+              <Link to="/teacher-login" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, color: '#000', textDecoration: 'none', borderBottom: '2px solid #b7c6c2', paddingBottom: '1px' }}>
+                Teacher Login →
               </Link>
             </p>
           </div>

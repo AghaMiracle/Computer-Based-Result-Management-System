@@ -12,6 +12,7 @@ import RegisterInstitution from './pages/auth/RegisterInstitution';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import StudentLogin from './pages/auth/StudentLogin';
+import TeacherLogin from './pages/auth/TeacherLogin';
 import NotFound from './pages/NotFound';
 
 // Role-specific dashboards
@@ -80,6 +81,7 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/student-login" element={<StudentLogin />} />
+              <Route path="/teacher-login" element={<TeacherLogin />} />
               
               {/* Protected dashboard routes */}
               <Route path="/dashboard" element={<DashboardLayout />}>

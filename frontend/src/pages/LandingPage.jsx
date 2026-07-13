@@ -123,6 +123,9 @@ const LandingPage = () => {
             <a onClick={() => navigate('/student-login')} style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: '0.875rem', color: '#000', textDecoration: 'none', cursor: 'pointer', borderBottom: '2px solid #000', paddingBottom: '1px' }}>
               🎓 Student Login
             </a>
+            <a onClick={() => navigate('/teacher-login')} style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 700, fontSize: '0.875rem', color: '#000', textDecoration: 'none', cursor: 'pointer', borderBottom: '2px solid #000', paddingBottom: '1px' }}>
+              📚 Teacher Login
+            </a>
             <PushBtn variant="white" size="sm" onClick={() => navigate('/login')}>Sign In</PushBtn>
             <PushBtn variant="black" size="sm" onClick={() => navigate('/register')}>Start Free Trial</PushBtn>
           </div>
@@ -168,6 +171,7 @@ const LandingPage = () => {
               ))}
               <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <PushBtn variant="sage" onClick={() => { navigate('/student-login'); setMobileNavOpen(false); }} style={{ width: '100%', justifyContent: 'center' }}>🎓 Student Login</PushBtn>
+                <PushBtn variant="sage" onClick={() => { navigate('/teacher-login'); setMobileNavOpen(false); }} style={{ width: '100%', justifyContent: 'center' }}>📚 Teacher Login</PushBtn>
                 <PushBtn variant="white" onClick={() => { navigate('/login'); setMobileNavOpen(false); }} style={{ width: '100%', justifyContent: 'center' }}>Sign In</PushBtn>
                 <PushBtn variant="black" onClick={() => { navigate('/register'); setMobileNavOpen(false); }} style={{ width: '100%', justifyContent: 'center' }}>Start Free Trial</PushBtn>
               </div>

@@ -4,12 +4,12 @@ import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import {
   HiOutlineEye, HiOutlineEyeSlash, HiOutlineArrowLeft,
-  HiOutlineBolt, HiOutlineEnvelope, HiOutlineLockClosed,
+  HiOutlineBookOpen, HiOutlineEnvelope, HiOutlineLockClosed,
 } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 
-const Login = () => {
-  const { login, isAuthenticated } = useAuth();
+const TeacherLogin = () => {
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,15 +17,16 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
+  if (isAuthenticated && user?.role === 'teacher') return <Navigate to="/dashboard" replace />;
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) { toast.error('Please enter email and password'); return; }
+    if (!email || !password) { toast.error('Please enter your email and password'); return; }
     setLoading(true);
     try {
-      const user = await login(email, password, 'institution');
-      toast.success(`Welcome back, ${user.firstName}!`);
+      const userData = await login(email, password, 'teacher');
+      toast.success(`Welcome back, ${userData.firstName}! 📚`);
       navigate('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.message || error.message || 'Login failed');
@@ -48,15 +49,15 @@ const Login = () => {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: '#ffe17c', padding: '2rem', position: 'relative', overflow: 'hidden',
-      backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)',
+      background: '#1a2e28', padding: '2rem', position: 'relative', overflow: 'hidden',
+      backgroundImage: 'radial-gradient(circle, rgba(183,198,194,0.1) 1px, transparent 1px)',
       backgroundSize: '32px 32px',
     }}>
       {/* Back link */}
       <div style={{ position: 'absolute', top: 24, left: 24 }}>
         <button onClick={() => navigate('/')} style={{
           display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-          background: '#fff', border: '2px solid #000', borderRadius: '0.5rem',
+          background: '#b7c6c2', border: '2px solid #000', borderRadius: '0.5rem',
           padding: '0.5rem 1rem', fontFamily: "'Satoshi', sans-serif", fontWeight: 700,
           fontSize: '0.875rem', color: '#000', cursor: 'pointer', boxShadow: '3px 3px 0px #000',
           transition: 'all 0.15s',
@@ -75,15 +76,29 @@ const Login = () => {
       >
         <div style={{ background: '#fff', border: '2px solid #000', borderRadius: '1rem', padding: '2.5rem', boxShadow: '8px 8px 0px #000' }}>
           {/* Logo */}
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <div style={{ width: 56, height: 56, background: '#000', border: '2px solid #000', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', boxShadow: '4px 4px 0px #000' }}>
-              <HiOutlineBolt style={{ color: '#ffe17c', fontSize: '1.625rem' }} />
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <div style={{
+              width: 56, height: 56, background: '#b7c6c2', border: '2px solid #000',
+              borderRadius: '0.75rem', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', margin: '0 auto 1rem', boxShadow: '4px 4px 0px #000'
+            }}>
+              <HiOutlineBookOpen style={{ color: '#000', fontSize: '1.625rem' }} />
             </div>
             <h1 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#000', marginBottom: '0.375rem' }}>
-              Welcome Back
+              Teacher Portal
             </h1>
             <p style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 500, color: '#666', fontSize: '0.875rem' }}>
-              Sign in to your account
+              Sign in with the credentials sent to your email
+            </p>
+          </div>
+
+          {/* Info banner */}
+          <div style={{
+            background: '#b7c6c2', border: '2px solid #000', borderRadius: '0.625rem',
+            padding: '0.75rem 1rem', marginBottom: '1.5rem', boxShadow: '2px 2px 0px #000'
+          }}>
+            <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: '0.8125rem', fontWeight: 600, color: '#000', margin: 0 }}>
+              📧 Your institution created your account. Check your email for login credentials.
             </p>
           </div>
 
@@ -140,7 +155,7 @@ const Login = () => {
               whileTap={!loading ? { x: 8, y: 8, boxShadow: '0px 0px 0px #000' } : {}}
               style={{
                 width: '100%', padding: '0.875rem',
-                background: loading ? '#555' : '#000', color: '#fff',
+                background: loading ? '#555' : '#b7c6c2', color: '#000',
                 border: '2px solid #000', borderRadius: '0.75rem',
                 fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1rem', fontWeight: 800,
                 cursor: loading ? 'not-allowed' : 'pointer',
@@ -151,28 +166,28 @@ const Login = () => {
             >
               {loading ? (
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  style={{ width: 20, height: 20, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }}
+                  style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.3)', borderTopColor: '#000', borderRadius: '50%' }}
                 />
-              ) : 'Sign In'}
+              ) : (
+                <>
+                  <HiOutlineBookOpen style={{ fontSize: '1.125rem' }} />
+                  Sign In as Teacher
+                </>
+              )}
             </motion.button>
           </form>
 
+          {/* Links */}
           <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
             <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: '0.875rem', fontWeight: 500, color: '#555' }}>
-              Don&apos;t have an account?{' '}
-              <Link to="/register" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, color: '#000', textDecoration: 'none', borderBottom: '2px solid #000' }}>
-                Register Institution
-              </Link>
-            </p>
-            <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: '0.8125rem', fontWeight: 500, color: '#555', marginTop: '0.75rem' }}>
-              Are you a teacher?{' '}
-              <Link to="/teacher-login" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, color: '#000', textDecoration: 'none', borderBottom: '2px solid #b7c6c2', paddingBottom: '1px' }}>
-                Teacher Login →
+              Institution Admin?{' '}
+              <Link to="/login" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, color: '#000', textDecoration: 'none', borderBottom: '2px solid #000' }}>
+                Login here
               </Link>
             </p>
             <p style={{ fontFamily: "'Satoshi', sans-serif", fontSize: '0.8125rem', fontWeight: 500, color: '#555', marginTop: '0.75rem' }}>
               Are you a student?{' '}
-              <Link to="/student-login" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, color: '#000', textDecoration: 'none', borderBottom: '2px solid #ffe17c', paddingBottom: '1px' }}>
+              <Link to="/student-login" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, color: '#000', textDecoration: 'none', borderBottom: '2px solid #b7c6c2', paddingBottom: '1px' }}>
                 Student Login →
               </Link>
             </p>
@@ -183,4 +198,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default TeacherLogin;

@@ -59,7 +59,7 @@ const redirectToLogin = () => {
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('user');
 
-  window.location.href = role === 'student' ? '/student-login' : '/login';
+  window.location.href = role === 'student' ? '/student-login' : role === 'teacher' ? '/teacher-login' : '/login';
 };
 
 // ── Auto-refresh access token on 401 ──────────────────────────────────────

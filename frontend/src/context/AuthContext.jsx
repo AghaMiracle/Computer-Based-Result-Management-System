@@ -47,14 +47,22 @@ export const AuthProvider = ({ children }) => {
     // reject any mismatch and clear the just-issued tokens so we don't
     // partially authenticate.
     if (expectedRole && userData.role !== expectedRole) {
-      const label = expectedRole === 'student' ? 'students' : expectedRole + 's';
-      throw new Error(`This login page is for ${label} only.`);
+      const portalMap = {
+        student: 'Student Portal (/student-login)',
+        teacher: 'Teacher Portal (/teacher-login)',
+        institution: 'Institution Login (/login)',
+      };
+      const correctPortal = portalMap[userData.role] || 'the correct portal';
+      throw new Error(`This login page is not for your account type. Please use the ${correctPortal}.`);
     }
 
-    // The main /login page is only for institution admins and teachers —
-    // students must use /student-login (their credentials came by email).
+    // If no expected role was set (generic login), only allow institution admins.
+    // Students and teachers must use their dedicated portals.
     if (!expectedRole && userData.role === 'student') {
       throw new Error('Students must sign in from the Student Portal.');
+    }
+    if (!expectedRole && userData.role === 'teacher') {
+      throw new Error('Teachers must sign in from the Teacher Portal.');
     }
 
     localStorage.setItem('accessToken', accessToken);
