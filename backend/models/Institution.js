@@ -55,8 +55,8 @@ const institutionSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'active', 'suspended', 'rejected'],
-    default: 'pending'
+    enum: ['active', 'suspended'],
+    default: 'active'
   },
   subscriptionPlan: {
     type: String,

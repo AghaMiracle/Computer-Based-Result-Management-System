@@ -9,7 +9,6 @@ import errorHandler from './middleware/errorHandler.js';
 
 // Route imports
 import authRoutes from './routes/auth.js';
-import adminRoutes from './routes/admin.js';
 import institutionRoutes from './routes/institution.js';
 import teacherRoutes from './routes/teacher.js';
 import studentRoutes from './routes/student.js';
@@ -56,7 +55,6 @@ app.use('/uploads', express.static('uploads'));
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
 app.use('/api/institution', institutionRoutes);
 app.use('/api/teacher', teacherRoutes);
 app.use('/api/student', studentRoutes);
@@ -87,7 +85,6 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`\n🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
   console.log(`📡 API: http://localhost:${PORT}/api/health`);
-  console.log(`📋 Admin Dashboard: http://localhost:5174`);
   console.log(`🎓 Frontend Portal: http://localhost:5173\n`);
 });
 

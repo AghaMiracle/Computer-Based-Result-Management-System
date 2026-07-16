@@ -31,7 +31,7 @@ const features = [
 ];
 
 const steps = [
-  { num: '01', title: 'Register Your Institution', desc: 'Sign up your university or college. An admin approves your account within 24 hours.', border: '#b7c6c2' },
+  { num: '01', title: 'Register Your Institution', desc: 'Sign up your university or college. Your account is activated instantly — no waiting.', border: '#b7c6c2' },
   { num: '02', title: 'Set Up Courses & People',   desc: 'Create departments, add courses, register teachers and students. Credentials sent automatically.', border: '#ffe17c' },
   { num: '03', title: 'Publish Results',           desc: 'Teachers enter grades, submit for approval. Students see results instantly once approved.', border: '#ffffff' },
 ];

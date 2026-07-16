@@ -32,17 +32,11 @@ export const login = async (req, res) => {
     if (!user.isActive) {
       return res.status(403).json({
         success: false,
-        message: 'Your account has been deactivated. Contact administrator.'
+        message: 'Your account has been deactivated. Contact your institution.'
       });
     }
 
-    // Check if institution is active (for non-admin users)
-    if (user.role !== 'admin' && user.institutionId && user.institutionId.status !== 'active') {
-      return res.status(403).json({
-        success: false,
-        message: 'Your institution account is not active. Contact administrator.'
-      });
-    }
+    // Institution status is always 'active' upon registration (no admin approval needed)
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {

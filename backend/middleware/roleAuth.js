@@ -1,6 +1,6 @@
 /**
  * Role-based access control middleware factory
- * Usage: authorize('admin', 'institution')
+ * Usage: authorize('institution', 'teacher')
  */
 export const authorize = (...roles) => {
   return (req, res, next) => {
@@ -26,10 +26,6 @@ export const authorize = (...roles) => {
  * Ensure user belongs to the same institution (for institution-scoped routes)
  */
 export const sameInstitution = (req, res, next) => {
-  if (req.user.role === 'admin') {
-    return next(); // Admin can access all institutions
-  }
-
   const institutionId = req.params.institutionId || req.body.institutionId || req.user.institutionId;
   
   if (!institutionId) {

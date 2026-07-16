@@ -29,7 +29,7 @@ export const protect = async (req, res, next) => {
     if (!req.user.isActive) {
       return res.status(403).json({
         success: false,
-        message: 'Your account has been deactivated. Contact administrator.'
+        message: 'Your account has been deactivated. Contact your institution.'
       });
     }
 

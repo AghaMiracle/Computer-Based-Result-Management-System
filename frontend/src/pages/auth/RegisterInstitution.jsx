@@ -239,9 +239,9 @@ const RegisterInstitution = () => {
                 }}>
                   <p style={{ fontSize: '0.8125rem', color: '#000', fontWeight: 800, marginBottom: 6, fontFamily: "'Cabinet Grotesk', sans-serif", textTransform: 'uppercase', letterSpacing: '0.04em' }}>📋 What happens next?</p>
                   <ul style={{ fontSize: '0.8125rem', color: '#333', paddingLeft: '1.25rem', margin: 0, lineHeight: 1.8, fontFamily: "'Satoshi', sans-serif", fontWeight: 500 }}>
-                    <li>A system admin will review and approve your institution</li>
-                    <li>Once approved, log in with your admin credentials</li>
+                    <li>Your institution is now active — log in with your admin credentials</li>
                     <li>Start setting up departments, courses, teachers, and students</li>
+                    <li>Invite teachers to upload results and manage classes</li>
                   </ul>
                 </div>
                 <button onClick={() => navigate('/login')} style={{
