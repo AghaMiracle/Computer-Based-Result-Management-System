@@ -53,14 +53,20 @@ const Results = () => {
     fetchFilters();
   }, []);
 
+  const [summary, setSummary] = useState(null);
+
   useEffect(() => {
     setLoading(true);
     const params = new URLSearchParams();
     if (selectedSession) params.set('sessionId', selectedSession);
     if (selectedSemester) params.set('semesterId', selectedSemester);
     const fetchResults = async () => {
-      try { const res = await axios.get(`/api/student/results?${params}`); setResults(res.data.data?.results || res.data.data || []); }
-      catch { setResults([]); } finally { setLoading(false); }
+      try {
+        const res = await axios.get(`/api/student/results?${params}`);
+        setResults(res.data.data?.results || res.data.data || []);
+        setSummary(res.data.data?.summary || null);
+      }
+      catch { setResults([]); setSummary(null); } finally { setLoading(false); }
     };
     fetchResults();
   }, [selectedSession, selectedSemester]);
@@ -70,7 +76,7 @@ const Results = () => {
 
   const totalCU = results.reduce((sum, r) => sum + (r.courseId?.creditUnits || 0), 0);
   const weightedGP = results.reduce((sum, r) => sum + ((r.gradePoint || 0) * (r.courseId?.creditUnits || 0)), 0);
-  const gpa = totalCU > 0 ? weightedGP / totalCU : 0;
+  const gpa = summary?.gpa ?? (totalCU > 0 ? weightedGP / totalCU : 0);
   const filteredSemesters = semesters.filter(s => !selectedSession || s.sessionId?._id === selectedSession || s.sessionId === selectedSession);
 
   return (

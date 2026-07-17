@@ -146,6 +146,13 @@ export const enterResults = async (req, res) => {
           continue;
         }
 
+        // Check if result already submitted/approved — don't overwrite
+        const existingResult = await Result.findOne({ studentId: item.studentId, courseId, semesterId, sessionId });
+        if (existingResult && (existingResult.status === 'submitted' || existingResult.status === 'approved')) {
+          errors.push({ studentId: item.studentId, error: `Result already ${existingResult.status} — cannot edit` });
+          continue;
+        }
+
         const totalScore = (item.caScore || 0) + (item.examScore || 0);
 
         // Compute grade
@@ -204,6 +211,11 @@ export const enterResults = async (req, res) => {
 export const submitResults = async (req, res) => {
   try {
     const { semesterId, sessionId } = req.body;
+
+    if (!semesterId || !sessionId) {
+      return res.status(400).json({ success: false, message: 'semesterId and sessionId are required' });
+    }
+
     const result = await Result.updateMany(
       { courseId: req.params.courseId, teacherId: req.user._id, semesterId, sessionId, status: 'draft' },
       { status: 'submitted', submittedAt: new Date() }
@@ -419,6 +431,13 @@ export const bulkUploadResults = async (req, res) => {
 
     for (const [index, row] of resultRows.entries()) {
       try {
+        // Check if result already submitted/approved — don't overwrite
+        const existing = await Result.findOne({ studentId: row.studentId, courseId, semesterId, sessionId });
+        if (existing && (existing.status === 'submitted' || existing.status === 'approved')) {
+          errors.push(`Row ${index + 1}: Result already ${existing.status} — cannot edit`);
+          continue;
+        }
+
         const totalScore = (row.caScore || 0) + (row.examScore || 0);
         let letterGrade = 'F', gradePoint = 0;
         if (gradingScale) {

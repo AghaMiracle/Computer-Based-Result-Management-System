@@ -110,7 +110,7 @@ export const getTranscript = async (req, res) => {
       .populate('departmentId', 'name code')
       .populate('institutionId', 'name code logo');
 
-    const user = await User.findById(studentId);
+    const user = await User.findById(studentId).populate('institutionId', 'name code logo');
 
     // Get all approved results grouped by session/semester
     const results = await Result.find({ studentId, status: 'approved' })
@@ -131,15 +131,25 @@ export const getTranscript = async (req, res) => {
           session: sessionName,
           semester: semesterName,
           courses: [],
-          gpa: 0
+          results: [],
+          gpa: 0,
+          totalCreditUnits: 0
         };
       }
       transcript[key].courses.push(r);
+      transcript[key].results.push({
+        code: r.courseId?.code,
+        title: r.courseId?.title,
+        creditUnits: r.courseId?.creditUnits || 0,
+        grade: r.letterGrade,
+        gradePoint: r.gradePoint
+      });
     });
 
-    // Calculate GPA for each semester
+    // Calculate GPA and total credit units for each semester
     Object.values(transcript).forEach(sem => {
       sem.gpa = calculateSemesterGPA(sem.courses);
+      sem.totalCreditUnits = sem.courses.reduce((s, r) => s + (r.courseId?.creditUnits || 0), 0);
     });
 
     const cgpaResult = calculateCGPA(results);
@@ -149,9 +159,21 @@ export const getTranscript = async (req, res) => {
     res.status(200).json({
       success: true,
       data: {
-        student: { ...user.toObject(), profile },
-        transcript: Object.values(transcript),
-        summary: { cgpa, classification, totalCredits: results.reduce((s, r) => s + (r.courseId?.creditUnits || 0), 0) }
+        student: {
+          name: `${user.firstName} ${user.lastName}`,
+          matricNumber: profile?.matricNumber || 'N/A',
+          department: profile?.departmentId?.name || 'N/A',
+          email: user.email
+        },
+        institution: {
+          name: user.institutionId?.name || 'N/A',
+          code: user.institutionId?.code || '',
+          logo: user.institutionId?.logo || null
+        },
+        semesters: Object.values(transcript),
+        cgpa,
+        classification,
+        totalCredits: results.reduce((s, r) => s + (r.courseId?.creditUnits || 0), 0)
       }
     });
   } catch (error) {

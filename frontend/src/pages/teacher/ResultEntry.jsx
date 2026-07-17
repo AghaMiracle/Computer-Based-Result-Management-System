@@ -78,18 +78,27 @@ const ResultEntry = () => {
     setSaving(true);
     try {
       const res = await axios.post('/api/teacher/results', { results: resultsData, courseId: selectedCourse, semesterId: selectedSemester, sessionId: selectedSession });
-      toast.success(res.data.message);
+      if (res.data.data?.errors?.length > 0) {
+        toast.error(`${res.data.data.errors.length} error(s): ${res.data.data.errors.map(e => e.error).join(', ')}`);
+      }
+      if (res.data.data?.saved?.length > 0) {
+        toast.success(res.data.message);
+      }
       fetchStudents();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); } finally { setSaving(false); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to save results'); } finally { setSaving(false); }
   };
 
   const handleSubmit = async () => {
     if (!confirm('Submit results for approval? You won\'t be able to edit after submission.')) return;
     try {
       const res = await axios.post(`/api/teacher/results/submit/${selectedCourse}`, { semesterId: selectedSemester, sessionId: selectedSession });
-      toast.success(res.data.message);
+      if (res.data.message?.includes('0 results')) {
+        toast.error('No draft results to submit. Save your entries first.');
+      } else {
+        toast.success(res.data.message);
+      }
       fetchStudents();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to submit results'); }
   };
 
   return (
