@@ -1,67 +1,71 @@
 /**
- * emailService.js — powered by Brevo (formerly Sendinblue) REST API.
- * Uses Node 18+ built-in fetch — no extra package needed.
+ * emailService.js — powered by Gmail SMTP via Nodemailer.
  *
  * Required .env vars:
- *   BREVO_API_KEY      — xkeysib-... key from app.brevo.com/settings/keys/api
- *   BREVO_FROM_EMAIL   — verified sender address in your Brevo account
- *   BREVO_FROM_NAME    — display name (optional, defaults to "Student Result Manager")
+ *   SMTP_HOST       — smtp.gmail.com
+ *   SMTP_PORT       — 587
+ *   SMTP_USER       — your Gmail address (e.g. yourname@gmail.com)
+ *   SMTP_PASS       — Gmail App Password (NOT your regular password)
+ *   SMTP_FROM_NAME  — display name (optional, defaults to "Student Result Manager")
+ *
+ * To generate an App Password:
+ *   1. Enable 2-Step Verification on your Google account
+ *   2. Go to https://myaccount.google.com/apppasswords
+ *   3. Create a new app password and use it as SMTP_PASS
  */
 
-const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+import nodemailer from 'nodemailer';
+
+let transporter = null;
 
 /**
- * Low-level send via Brevo Transactional Email API.
- * Falls back to console log when BREVO_API_KEY is not configured.
+ * Get or create the nodemailer transporter (singleton).
+ */
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT) || 587,
+      secure: false, // true for 465, false for 587 (STARTTLS)
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+  }
+  return transporter;
+};
+
+/**
+ * Low-level send via Gmail SMTP.
+ * Falls back to console log when SMTP_USER is not configured.
  */
 export const sendEmail = async ({ to, subject, text, html }) => {
-  const apiKey = process.env.BREVO_API_KEY;
-
-  if (!apiKey) {
-    console.log('📧 [NO BREVO KEY] Email would be sent:');
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.log('📧 [NO SMTP CONFIG] Email would be sent:');
     console.log(`   To: ${to}`);
     console.log(`   Subject: ${subject}`);
     console.log(`   Preview: ${(text || html)?.substring(0, 150)}…`);
     return { messageId: 'noop-' + Date.now() };
   }
 
-  const recipients = (Array.isArray(to) ? to : [to]).map((email) =>
-    typeof email === 'string' ? { email } : email
-  );
-
-  const body = {
-    sender: {
-      name: process.env.BREVO_FROM_NAME || 'Student Result Manager',
-      email: process.env.BREVO_FROM_EMAIL,
-    },
-    to: recipients,
-    subject,
-    ...(html ? { htmlContent: html } : { textContent: text }),
-  };
+  const fromName = process.env.SMTP_FROM_NAME || 'Student Result Manager';
+  const from = `"${fromName}" <${process.env.SMTP_USER}>`;
 
   try {
-    const response = await fetch(BREVO_API_URL, {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'api-key': apiKey,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(body),
+    const info = await getTransporter().sendMail({
+      from,
+      to: Array.isArray(to) ? to.join(', ') : to,
+      subject,
+      ...(text && { text }),
+      ...(html && { html }),
     });
 
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`❌ Brevo API error ${response.status}:`, errorBody);
-      return { messageId: 'error-' + Date.now(), error: errorBody };
-    }
-
-    const data = await response.json();
-    console.log(`✅ Email sent via Brevo to ${Array.isArray(to) ? to.join(', ') : to} — messageId: ${data.messageId}`);
-    return data;
+    console.log(`✅ Email sent via Gmail SMTP to ${Array.isArray(to) ? to.join(', ') : to} — messageId: ${info.messageId}`);
+    return info;
   } catch (err) {
-    console.error('❌ Brevo request failed:', err.message);
-    return { messageId: 'error-fallback-' + Date.now(), error: err.message };
+    console.error('❌ SMTP send failed:', err.message);
+    return { messageId: 'error-' + Date.now(), error: err.message };
   }
 };
 

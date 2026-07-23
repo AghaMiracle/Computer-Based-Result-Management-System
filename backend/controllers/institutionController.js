@@ -348,27 +348,49 @@ export const getStudentResults = async (req, res) => {
 export const createTeacher = async (req, res) => {
   try {
     const institutionId = req.user.institutionId;
-    const { firstName, lastName, email, phone, departmentId } = req.body;
+    const { firstName, lastName, email, phone } = req.body;
+
+    if (!firstName || !lastName || !email) {
+      return res.status(400).json({ success: false, message: 'First name, last name and email are required' });
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+
+    // Explicit duplicate check → clear 409 instead of a generic 500 on the unique index
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(409).json({ success: false, message: 'A user with this email already exists' });
+    }
+
     const password = generatePassword();
 
     const user = await User.create({
-      firstName, lastName, email, password, phone,
+      firstName, lastName, email: normalizedEmail, password, phone,
       role: 'teacher', institutionId, isActive: true
     });
 
-    await sendAccountCreationEmail(user, password);
-
-    await logAudit({
-      userId: req.user._id, action: 'TEACHER_CREATE', entity: 'Teacher', entityId: user._id,
-      description: `Teacher ${firstName} ${lastName} created`,
-      ipAddress: req.ip, userAgent: req.headers['user-agent']
-    });
-
+    // Respond immediately — teacher creation must not depend on the (slow) SMTP handshake.
     res.status(201).json({
       success: true, message: 'Teacher created',
       data: { user: { ...user.toObject(), password: undefined }, generatedPassword: password }
     });
+
+    // Fire-and-forget: email + audit run after the response. Failures here are
+    // logged but never turn a successful creation into a 500 for the client.
+    sendAccountCreationEmail(user, password).catch((err) =>
+      console.error('Teacher account email failed:', err.message)
+    );
+
+    logAudit({
+      userId: req.user._id, action: 'TEACHER_CREATE', entity: 'Teacher', entityId: user._id,
+      description: `Teacher ${firstName} ${lastName} created`,
+      ipAddress: req.ip, userAgent: req.headers['user-agent']
+    });
   } catch (error) {
+    // Duplicate key safety net in case of a race between the check and create
+    if (error.code === 11000) {
+      return res.status(409).json({ success: false, message: 'A user with this email already exists' });
+    }
     res.status(500).json({ success: false, message: 'Failed to create teacher', error: error.message });
   }
 };
